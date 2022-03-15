@@ -1,135 +1,72 @@
+import java.util.HashMap;
+import java.util.Map;
 
 public class TennisGame2 implements TennisGame
 {
-    public int P1point = 0;
-    public int P2point = 0;
-    
-    public String P1res = "";
-    public String P2res = "";
-    private String player1Name;
-    private String player2Name;
+    private int p1point;
+    private int p2point;
+
+
+    private final String player1Name;
+    private final String player2Name;
+    private final String winStatement;
+    private final String[] scoreNames = new String[]{"Love", "Fifteen", "Thirty", "Forty", "Win for "};
 
     public TennisGame2(String player1Name, String player2Name) {
         this.player1Name = player1Name;
         this.player2Name = player2Name;
+        p1point = 0;
+        p2point = 0;
+        winStatement = "Win for ";
+    }
+
+    // definimos metodo para señalar los puntajes en caso de deuce
+    public Map<Integer, String> deuceScores(String playerName1, String playerName2){
+        Map<Integer, String> scores = new HashMap<>();
+        scores.put(-2, winStatement + playerName2);
+        scores.put(-1, "Advantage " + playerName2);
+        scores.put(0, "Deuce");
+        scores.put(1, "Advantage " + playerName1);
+        scores.put(2, winStatement + playerName1);
+        return scores;
+    }
+
+    public void p1Score(){
+        p1point++;
+    }
+
+    public void p2Score(){
+        p2point++;
+    }
+
+    // se elimina el if-else
+    public void wonPoint(String player) {
+        if (player.equals(player1Name)) {
+            p1Score();
+            return;
+        }
+        p2Score();
+    }
+
+    private String scoreStatement(){
+        return p1point == p2point ? scoreNames[p1point] + "-All": scoreNames[p1point] + "-" + scoreNames[p2point];
+    }
+
+    // metodo que gestiona el puntaje durante un deuce
+    public String scoreLineDeuce(){
+        return deuceScores(player1Name, player2Name).get(p1point - p2point);
+    }
+
+    private String checkPlayer2Wins(){
+        return p2point > 3 ? winStatement + player2Name : scoreStatement();
+    }
+
+    private String completeScoreStatement(){
+        Map<Integer, String> statements = deuceScores(player1Name, player2Name);
+        return p1point > 3 ? statements.get(2) : checkPlayer2Wins();
     }
 
     public String getScore(){
-        String score = "";
-        if (P1point == P2point && P1point < 4)
-        {
-            if (P1point==0)
-                score = "Love";
-            if (P1point==1)
-                score = "Fifteen";
-            if (P1point==2)
-                score = "Thirty";
-            score += "-All";
-        }
-        if (P1point==P2point && P1point>=3)
-            score = "Deuce";
-        
-        if (P1point > 0 && P2point==0)
-        {
-            if (P1point==1)
-                P1res = "Fifteen";
-            if (P1point==2)
-                P1res = "Thirty";
-            if (P1point==3)
-                P1res = "Forty";
-            
-            P2res = "Love";
-            score = P1res + "-" + P2res;
-        }
-        if (P2point > 0 && P1point==0)
-        {
-            if (P2point==1)
-                P2res = "Fifteen";
-            if (P2point==2)
-                P2res = "Thirty";
-            if (P2point==3)
-                P2res = "Forty";
-            
-            P1res = "Love";
-            score = P1res + "-" + P2res;
-        }
-        
-        if (P1point>P2point && P1point < 4)
-        {
-            if (P1point==2)
-                P1res="Thirty";
-            if (P1point==3)
-                P1res="Forty";
-            if (P2point==1)
-                P2res="Fifteen";
-            if (P2point==2)
-                P2res="Thirty";
-            score = P1res + "-" + P2res;
-        }
-        if (P2point>P1point && P2point < 4)
-        {
-            if (P2point==2)
-                P2res="Thirty";
-            if (P2point==3)
-                P2res="Forty";
-            if (P1point==1)
-                P1res="Fifteen";
-            if (P1point==2)
-                P1res="Thirty";
-            score = P1res + "-" + P2res;
-        }
-        
-        if (P1point > P2point && P2point >= 3)
-        {
-            score = "Advantage player1";
-        }
-        
-        if (P2point > P1point && P1point >= 3)
-        {
-            score = "Advantage player2";
-        }
-        
-        if (P1point>=4 && P2point>=0 && (P1point-P2point)>=2)
-        {
-            score = "Win for player1";
-        }
-        if (P2point>=4 && P1point>=0 && (P2point-P1point)>=2)
-        {
-            score = "Win for player2";
-        }
-        return score;
-    }
-    
-    public void SetP1Score(int number){
-        
-        for (int i = 0; i < number; i++)
-        {
-            P1Score();
-        }
-            
-    }
-    
-    public void SetP2Score(int number){
-        
-        for (int i = 0; i < number; i++)
-        {
-            P2Score();
-        }
-            
-    }
-    
-    public void P1Score(){
-        P1point++;
-    }
-    
-    public void P2Score(){
-        P2point++;
-    }
-
-    public void wonPoint(String player) {
-        if (player == "player1")
-            P1Score();
-        else
-            P2Score();
+        return p1point >=3 && p2point >=3 ? scoreLineDeuce(): completeScoreStatement();
     }
 }
